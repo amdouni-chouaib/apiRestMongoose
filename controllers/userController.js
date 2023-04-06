@@ -41,3 +41,29 @@ exports.deleteUser = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+// Get articles by user ID
+exports.getArticlesByUserId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).populate('articles');
+    res.status(200).json(user.articles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Create article for user
+exports.createArticleForUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description } = req.body;
+    const article = new Article({ title, description });
+    await article.save();
+    const user = await User.findById(id);
+    user.articles.push(article);
+    await user.save();
+    res.status(201).json(article);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
